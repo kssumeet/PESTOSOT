@@ -4,6 +4,7 @@ import { industries } from "@/lib/content";
 import { SectionHeader } from "./section-header";
 import { Stagger, StaggerItem } from "@/components/motion/reveal";
 import { Button } from "@/components/ui/button";
+import { AuroraBackground } from "@/components/motion/aurora";
 import { useLeadModal } from "@/components/lead/lead-modal";
 
 export function Industries() {
@@ -12,9 +13,10 @@ export function Industries() {
   return (
     <section
       id="industries"
-      className="scroll-mt-24 overflow-hidden bg-navy-950 py-20 text-white md:py-28"
+      className="relative scroll-mt-24 overflow-hidden bg-navy-950 py-20 text-white md:py-28"
     >
-      <div className="container-px mx-auto max-w-7xl">
+      <AuroraBackground intensity="dark" />
+      <div className="container-px relative z-10 mx-auto max-w-7xl">
         <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
           <div className="lg:col-span-5">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary-300">

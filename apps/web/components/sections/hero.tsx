@@ -15,6 +15,7 @@ import {
 import { CONTACT, STATS, telLink } from "@pestosot/config";
 import { Button } from "@/components/ui/button";
 import { Magnetic } from "@/components/motion/magnetic";
+import { AuroraBackground } from "@/components/motion/aurora";
 import { BeforeAfterSlider } from "@/components/ui/before-after-slider";
 import { useLeadModal } from "@/components/lead/lead-modal";
 
@@ -34,11 +35,12 @@ export function Hero() {
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-primary-50/70 via-white to-white pt-32 pb-16 md:pt-40 md:pb-24">
-      <div className="pointer-events-none absolute inset-0 bg-grid mask-fade-b opacity-50" />
-      <div
-        className="pointer-events-none absolute -right-40 -top-20 h-[620px] w-[620px] rounded-full opacity-50 blur-3xl"
-        style={{ background: "radial-gradient(circle, rgba(20,168,98,0.22), transparent 65%)" }}
-      />
+      <AuroraBackground intensity="vivid" className="mask-fade-b" />
+      <div className="bg-grid animate-grid-pan mask-fade-b pointer-events-none absolute inset-0 opacity-40" />
+      {/* floating orbs */}
+      <div className="animate-orb pointer-events-none absolute left-[8%] top-[28%] size-3 rounded-full bg-primary-400/60 blur-[1px]" />
+      <div className="animate-float-slow pointer-events-none absolute right-[14%] top-[20%] size-2 rounded-full bg-navy-400/50" />
+      <div className="animate-orb pointer-events-none absolute bottom-[18%] left-[40%] size-2.5 rounded-full bg-primary-500/40 [animation-delay:3s]" />
 
       <div className="container-px relative z-10 mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2 lg:gap-8">
         {/* Copy */}

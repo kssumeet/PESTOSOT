@@ -7,6 +7,7 @@ import { breadcrumbSchema, jsonLd } from "@/lib/schema";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Reveal } from "@/components/motion/reveal";
+import { AuroraBackground } from "@/components/motion/aurora";
 import { BookButton } from "@/components/lead/book-button";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? BRAND.url;
@@ -36,8 +37,9 @@ export default function ServicesIndexPage() {
 
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-b from-primary-50/70 to-white pt-32 pb-12 md:pt-40">
-        <div className="bg-grid mask-fade-b pointer-events-none absolute inset-0 opacity-50" />
-        <div className="container-px relative mx-auto max-w-7xl">
+        <AuroraBackground intensity="vivid" className="mask-fade-b" />
+        <div className="bg-grid animate-grid-pan mask-fade-b pointer-events-none absolute inset-0 opacity-40" />
+        <div className="container-px relative z-10 mx-auto max-w-7xl">
           <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Services" }]} />
           <div className="mt-6 max-w-2xl">
             <Badge tone="primary">Our Services</Badge>

@@ -3,11 +3,13 @@ import { whyChoose } from "@/lib/content";
 import { SectionHeader } from "./section-header";
 import { Stagger, StaggerItem } from "@/components/motion/reveal";
 import { Card } from "@/components/ui/card";
+import { AuroraBackground } from "@/components/motion/aurora";
 
 export function WhyChoose() {
   return (
-    <section className="relative bg-ink-50/60 py-20 md:py-28">
-      <div className="container-px mx-auto max-w-7xl">
+    <section className="relative overflow-hidden bg-ink-50/60 py-20 md:py-28">
+      <AuroraBackground intensity="subtle" />
+      <div className="container-px relative z-10 mx-auto max-w-7xl">
         <SectionHeader
           eyebrow="Why PESTOSOT"
           title="Built on trust, safety and results"

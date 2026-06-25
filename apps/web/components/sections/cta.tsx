@@ -3,6 +3,7 @@
 import { CheckCircle2, Phone, MessageCircle } from "lucide-react";
 import { CONTACT, telLink, whatsappLink } from "@pestosot/config";
 import { Reveal } from "@/components/motion/reveal";
+import { AuroraBackground } from "@/components/motion/aurora";
 import { LeadForm } from "@/components/lead/lead-form";
 
 const promises = [
@@ -17,12 +18,9 @@ export function Cta() {
     <section id="book" className="scroll-mt-24 py-20 md:py-28">
       <div className="container-px mx-auto max-w-7xl">
         <div className="relative overflow-hidden rounded-[2rem] bg-navy-950 px-6 py-12 md:px-12 md:py-16">
-          {/* glow */}
-          <div
-            className="pointer-events-none absolute -left-20 -top-20 size-96 rounded-full opacity-40 blur-3xl"
-            style={{ background: "radial-gradient(circle, rgba(20,168,98,0.5), transparent 70%)" }}
-          />
-          <div className="bg-grid pointer-events-none absolute inset-0 opacity-[0.07]" />
+          {/* animated glow */}
+          <AuroraBackground intensity="dark" />
+          <div className="bg-grid animate-grid-pan pointer-events-none absolute inset-0 opacity-[0.07]" />
 
           <div className="relative grid gap-10 lg:grid-cols-2 lg:items-center">
             <div className="text-white">

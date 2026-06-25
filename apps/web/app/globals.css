@@ -78,6 +78,11 @@
   --animate-float-slow: float-slow 9s ease-in-out infinite;
   --animate-shimmer: shimmer 2.2s linear infinite;
   --animate-gradient: gradient-pan 14s ease infinite;
+  --animate-aurora-a: aurora-a 19s ease-in-out infinite;
+  --animate-aurora-b: aurora-b 23s ease-in-out infinite;
+  --animate-aurora-c: aurora-c 17s ease-in-out infinite;
+  --animate-grid-pan: grid-pan 24s linear infinite;
+  --animate-orb: orb 14s ease-in-out infinite;
 }
 
 @keyframes marquee {
@@ -95,6 +100,26 @@
 @keyframes gradient-pan {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
+}
+@keyframes aurora-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(8%, -6%, 0) scale(1.18); }
+}
+@keyframes aurora-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.08); }
+  50% { transform: translate3d(-7%, 7%, 0) scale(0.9); }
+}
+@keyframes aurora-c {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(0.95); }
+  50% { transform: translate3d(6%, 8%, 0) scale(1.12); }
+}
+@keyframes grid-pan {
+  from { background-position: 0 0; }
+  to { background-position: 56px 56px; }
+}
+@keyframes orb {
+  0%, 100% { transform: translateY(0) translateX(0); }
+  50% { transform: translateY(-22px) translateX(10px); }
 }
 
 /* ============================================================

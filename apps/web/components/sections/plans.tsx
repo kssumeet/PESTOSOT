@@ -6,14 +6,16 @@ import { SectionHeader } from "./section-header";
 import { Reveal } from "@/components/motion/reveal";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { AuroraBackground } from "@/components/motion/aurora";
 import { useLeadModal } from "@/components/lead/lead-modal";
 
 export function Plans() {
   const { open } = useLeadModal();
 
   return (
-    <section id="plans" className="scroll-mt-24 bg-ink-50/60 py-20 md:py-28">
-      <div className="container-px mx-auto max-w-7xl">
+    <section id="plans" className="relative scroll-mt-24 overflow-hidden bg-ink-50/60 py-20 md:py-28">
+      <AuroraBackground intensity="subtle" />
+      <div className="container-px relative z-10 mx-auto max-w-7xl">
         <SectionHeader
           center
           eyebrow="Annual Maintenance"

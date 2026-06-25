@@ -25,6 +25,7 @@ import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Accordion } from "@/components/ui/accordion";
 import { Reveal } from "@/components/motion/reveal";
+import { AuroraBackground } from "@/components/motion/aurora";
 import { BookButton } from "@/components/lead/book-button";
 import { Button } from "@/components/ui/button";
 
@@ -98,12 +99,9 @@ export default async function ServicePage({
 
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-b from-primary-50/70 to-white pt-32 pb-14 md:pt-40">
-        <div className="bg-grid mask-fade-b pointer-events-none absolute inset-0 opacity-50" />
-        <div
-          className="pointer-events-none absolute -right-32 top-10 h-[420px] w-[420px] rounded-full opacity-50 blur-3xl"
-          style={{ background: "radial-gradient(circle, rgba(20,168,98,0.22), transparent 65%)" }}
-        />
-        <div className="container-px relative mx-auto max-w-7xl">
+        <AuroraBackground intensity="vivid" className="mask-fade-b" />
+        <div className="bg-grid animate-grid-pan mask-fade-b pointer-events-none absolute inset-0 opacity-40" />
+        <div className="container-px relative z-10 mx-auto max-w-7xl">
           <Breadcrumb
             items={[
               { label: "Home", href: "/" },

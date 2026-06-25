@@ -3,6 +3,7 @@
 import * as React from "react";
 import { SectionHeader } from "./section-header";
 import { Reveal } from "@/components/motion/reveal";
+import { AuroraBackground } from "@/components/motion/aurora";
 import { BeforeAfterSlider } from "@/components/ui/before-after-slider";
 
 interface BACase {
@@ -23,8 +24,9 @@ export function BeforeAfter() {
   const c = cases[active];
 
   return (
-    <section className="bg-ink-50/60 py-20 md:py-28">
-      <div className="container-px mx-auto max-w-7xl">
+    <section className="relative overflow-hidden bg-ink-50/60 py-20 md:py-28">
+      <AuroraBackground intensity="subtle" />
+      <div className="container-px relative z-10 mx-auto max-w-7xl">
         <SectionHeader
           center
           eyebrow="Before & After"

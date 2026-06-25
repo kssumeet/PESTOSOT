@@ -5,14 +5,16 @@ import { PRIMARY_CITY, STATS } from "@pestosot/config";
 import { SectionHeader } from "./section-header";
 import { Reveal } from "@/components/motion/reveal";
 import { Button } from "@/components/ui/button";
+import { AuroraBackground } from "@/components/motion/aurora";
 import { useLeadModal } from "@/components/lead/lead-modal";
 
 export function Locations() {
   const { open } = useLeadModal();
 
   return (
-    <section id="locations" className="scroll-mt-24 py-20 md:py-28">
-      <div className="container-px mx-auto max-w-7xl">
+    <section id="locations" className="relative scroll-mt-24 overflow-hidden py-20 md:py-28">
+      <AuroraBackground intensity="subtle" />
+      <div className="container-px relative z-10 mx-auto max-w-7xl">
         <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
           <div className="lg:col-span-5">
             <SectionHeader
