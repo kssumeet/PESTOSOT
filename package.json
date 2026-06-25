@@ -1,0 +1,24 @@
+{
+  "name": "pestosot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PESTOSOT — Premium Pest Control & Deep Cleaning platform (monorepo)",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:web": "bun run --filter web dev",
+    "dev:api": "bun run --filter api start:dev",
+    "build:web": "bun run --filter web build",
+    "build:api": "bun run --filter api build",
+    "db:up": "docker compose up -d db",
+    "db:down": "docker compose down",
+    "api:migrate": "bun run --filter api prisma:migrate",
+    "api:seed": "bun run --filter api seed",
+    "typecheck": "bun run --filter web typecheck && bun run --filter api typecheck"
+  },
+  "engines": {
+    "bun": ">=1.3.0"
+  }
+}

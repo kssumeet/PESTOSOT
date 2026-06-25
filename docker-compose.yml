@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: pestosot-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: pestosot
+      POSTGRES_PASSWORD: pestosot
+      POSTGRES_DB: pestosot
+    ports:
+      - "5544:5432"
+    volumes:
+      - pestosot_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pestosot -d pestosot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pestosot_pgdata:

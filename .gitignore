@@ -1,0 +1,43 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# bun
+bun.lockb
+
+# next
+.next/
+out/
+next-env.d.ts
+
+# nest
+dist/
+*.tsbuildinfo
+
+# prisma
+apps/api/prisma/migrations/dev.db*
+
+# env
+.env
+.env.local
+.env.*.local
+
+# logs
+*.log
+npm-debug.log*
+
+# os / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# misc
+coverage/
+.turbo/
+
+# NEVER use npm in this repo
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
