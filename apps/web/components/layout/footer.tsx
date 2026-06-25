@@ -88,7 +88,7 @@ export function Footer() {
             <Link href="/contact" className="hover:text-white">Contact</Link>
             <Link href="#" className="hover:text-white">Privacy</Link>
             <Link href="#" className="hover:text-white">Terms</Link>
-            <Link href="#" className="hover:text-white">Refund</Link>
+            <Link href="/admin/login" className="hover:text-white">Login</Link>
           </div>
         </div>
       </div>

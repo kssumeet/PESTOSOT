@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { AnimatePresence, motion, useScroll, useMotionValueEvent } from "framer-motion";
-import { Menu, X, Phone, ChevronDown } from "lucide-react";
+import { Menu, X, Phone, ChevronDown, LogIn } from "lucide-react";
 import { CONTACT, telLink } from "@pestosot/config";
 import { serviceCategories, industries } from "@/lib/content";
 import { SERVICES } from "@/lib/services-data";
@@ -73,11 +73,17 @@ export function Navbar() {
           <div className="flex items-center gap-2">
             <a
               href={telLink()}
-              className="hidden items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold text-navy-900 hover:bg-ink-100 md:inline-flex"
+              className="hidden items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold text-navy-900 hover:bg-ink-100 xl:inline-flex"
             >
               <Phone className="size-4 text-primary-600" />
               {CONTACT.phone}
             </a>
+            <Link
+              href="/admin/login"
+              className="hidden items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium text-ink-700 transition-colors hover:bg-ink-100 hover:text-navy-900 lg:inline-flex"
+            >
+              <LogIn className="size-4" /> Login
+            </Link>
             <Button size="md" className="hidden sm:inline-flex" onClick={() => open()}>
               Book Inspection
             </Button>
@@ -230,6 +236,13 @@ export function Navbar() {
                 >
                   <Phone className="size-4 text-primary-600" /> {CONTACT.phone}
                 </a>
+                <Link
+                  href="/admin/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center justify-center gap-2 py-1 text-sm font-medium text-ink-500 hover:text-navy-900"
+                >
+                  <LogIn className="size-4" /> Staff login
+                </Link>
               </div>
             </motion.div>
           </motion.div>
