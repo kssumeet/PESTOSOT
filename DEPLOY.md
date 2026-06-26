@@ -1,0 +1,57 @@
+# Deploying PESTOSOT
+
+Recommended split:
+- **Frontend (`apps/web`) → Vercel** (Next.js, perfect fit).
+- **API (`apps/api`) → Railway** (persistent Node/Bun server + managed Postgres). Render/Fly.io work too — the Dockerfile is host-agnostic.
+
+> Don't deploy the API to Vercel: it's a long-running server (`app.listen`), not a serverless function.
+
+---
+
+## 1. API on Railway
+
+1. **New Project → Deploy from GitHub repo** → select `kssumeet/PESTOSOT`.
+2. In the service **Settings → Root Directory**, set `apps/api`. Railway will use `apps/api/Dockerfile` and `apps/api/railway.json` automatically (Docker build, `/health` healthcheck).
+3. **Add a Postgres database**: New → Database → PostgreSQL. Railway exposes `DATABASE_URL`.
+4. **Service → Variables** — set:
+   | Variable | Value |
+   |---|---|
+   | `DATABASE_URL` | reference the Postgres plugin's connection string |
+   | `JWT_SECRET` | 32+ char random (`openssl rand -hex 48`) — **required, API won't boot without it** |
+   | `JWT_EXPIRES_IN` | `7d` |
+   | `WEB_ORIGIN` | your Vercel URL, e.g. `https://pestosot.vercel.app` |
+   | `COOKIE_SAMESITE` | `none` (frontend and API are on different domains) |
+   | `NODE_ENV` | `production` (Railway usually sets this) |
+   | `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` | for the first admin |
+   *(SMTP_* optional — blank logs lead emails to the server console.)*
+5. **Deploy.** The container runs `prisma migrate deploy` on start, so the schema is applied automatically.
+6. **Seed the admin once** — in the service shell: `bun run seed`.
+7. Note the public API URL (e.g. `https://pestosot-api.up.railway.app`).
+
+## 2. Web on Vercel
+
+1. **New Project** → import `kssumeet/PESTOSOT` → **Root Directory: `apps/web`** (Framework: Next.js — auto-detected).
+2. **Environment Variables**:
+   | Variable | Value |
+   |---|---|
+   | `NEXT_PUBLIC_API_URL` | the Railway API URL (no trailing slash) |
+   | `NEXT_PUBLIC_SITE_URL` | your Vercel URL |
+3. **Deploy.** Then go back to Railway and make sure `WEB_ORIGIN` matches the final Vercel URL.
+
+## 3. Cookies across domains
+
+The session is an httpOnly cookie set by the API. For a `*.vercel.app` + `*.railway.app` split (different sites), set **`COOKIE_SAMESITE=none`** on the API so the browser sends it cross-site (Secure is forced on automatically over HTTPS). CORS still restricts calls to `WEB_ORIGIN`.
+
+**Cleaner production option:** put both under one parent domain — `pestosot.com` (web) and `api.pestosot.com` (API). Then set `COOKIE_DOMAIN=.pestosot.com`, leave `COOKIE_SAMESITE` at the default `strict`, and point `NEXT_PUBLIC_API_URL` at `https://api.pestosot.com`.
+
+## Local production test (optional)
+
+```bash
+cd apps/api
+docker build -t pestosot-api .
+docker run --rm -p 4000:4000 \
+  -e DATABASE_URL="postgresql://pestosot:pestosot@host.docker.internal:5544/pestosot?schema=public" \
+  -e JWT_SECRET="$(openssl rand -hex 48)" \
+  -e WEB_ORIGIN="http://localhost:3001" \
+  pestosot-api
+```
