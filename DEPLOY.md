@@ -1,14 +1,45 @@
 # Deploying PESTOSOT
 
-Recommended split:
-- **Frontend (`apps/web`) → Vercel** (Next.js, perfect fit).
-- **API (`apps/api`) → Railway** (persistent Node/Bun server + managed Postgres). Render/Fly.io work too — the Dockerfile is host-agnostic.
-
-> Don't deploy the API to Vercel: it's a long-running server (`app.listen`), not a serverless function.
+- **Frontend (`apps/web`) → Vercel** (Next.js).
+- **API (`apps/api`)** → **Vercel serverless** (Option A, below) *or* **Railway/Render/Fly** via the Dockerfile (Option B).
 
 ---
 
-## 1. API on Railway
+## Option A — API on Vercel (serverless)
+
+The API ships a serverless entry (`apps/api/api/index.ts`) that boots the Nest app once per warm function and forwards requests to it. `apps/api/vercel.json` wires the build and routes all paths to it.
+
+**Important:** serverless functions open a DB connection per cold start, so use a **pooled Postgres** — [Neon](https://neon.tech) (pooled connection string) or [Supabase](https://supabase.com) (port `6543`, pgbouncer). A raw single-connection Postgres will exhaust connections.
+
+1. Create the API project on Vercel: import `kssumeet/PESTOSOT`, **Root Directory = `apps/api`**, **Framework Preset = Other** (the `vercel.json` drives the build).
+2. Provision a **pooled Postgres** (Neon/Supabase). Keep two URLs handy: the **pooled** one (runtime) and the **direct** one (migrations).
+3. **Environment Variables** (Project → Settings → Environment Variables):
+   | Variable | Value |
+   |---|---|
+   | `DATABASE_URL` | the **pooled** connection string |
+   | `JWT_SECRET` | 32+ char random (`openssl rand -hex 48`) — **required** |
+   | `JWT_EXPIRES_IN` | `7d` |
+   | `WEB_ORIGIN` | the frontend URL, e.g. `https://pestosot.vercel.app` |
+   | `COOKIE_SAMESITE` | `none` (frontend & API are different `*.vercel.app` sites) |
+4. **Run migrations once** (serverless can't migrate on boot) — from your machine, against the **direct** URL:
+   ```bash
+   cd apps/api
+   DATABASE_URL="<DIRECT_postgres_url>" bunx prisma migrate deploy
+   DATABASE_URL="<DIRECT_postgres_url>" bun run seed   # creates the admin user
+   ```
+5. **Deploy.** Test: `https://<api>.vercel.app/health` → `{"status":"ok"}`.
+
+> Prisma engine: `schema.prisma` already targets `rhel-openssl-3.0.x` (Vercel's runtime). If you ever see an "engine not found" error, your runtime may be older — add `rhel-openssl-1.0.x` to `binaryTargets` and redeploy.
+
+Then deploy the **web** (section 2) and set its `NEXT_PUBLIC_API_URL` to the API's Vercel URL.
+
+---
+
+## Option B — API on Railway / Render / Fly (Docker)
+
+The Dockerfile runs a persistent server and applies migrations on start (`start:prod`). Works on any container host.
+
+### Railway
 
 1. **New Project → Deploy from GitHub repo** → select `kssumeet/PESTOSOT`.
 2. In the service **Settings → Root Directory**, set `apps/api`. Railway will use `apps/api/Dockerfile` and `apps/api/railway.json` automatically (Docker build, `/health` healthcheck).
@@ -28,15 +59,15 @@ Recommended split:
 6. **Seed the admin once** — in the service shell: `bun run seed`.
 7. Note the public API URL (e.g. `https://pestosot-api.up.railway.app`).
 
-## 2. Web on Vercel
+## Web on Vercel (used with either option)
 
 1. **New Project** → import `kssumeet/PESTOSOT` → **Root Directory: `apps/web`** (Framework: Next.js — auto-detected).
 2. **Environment Variables**:
    | Variable | Value |
    |---|---|
-   | `NEXT_PUBLIC_API_URL` | the Railway API URL (no trailing slash) |
+   | `NEXT_PUBLIC_API_URL` | the deployed API URL from Option A or B (no trailing slash) |
    | `NEXT_PUBLIC_SITE_URL` | your Vercel URL |
-3. **Deploy.** Then go back to Railway and make sure `WEB_ORIGIN` matches the final Vercel URL.
+3. **Deploy.** Then make sure the API's `WEB_ORIGIN` matches the final web URL.
 
 ## 3. Cookies across domains
 
