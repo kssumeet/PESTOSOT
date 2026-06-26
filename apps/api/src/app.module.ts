@@ -4,6 +4,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
+import { CustomerModule } from './customer/customer.module';
 import { LeadsModule } from './leads/leads.module';
 import { MailModule } from './mail/mail.module';
 import { HealthController } from './health/health.controller';
@@ -20,6 +21,7 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
     ]),
     PrismaModule,
     AuthModule,
+    CustomerModule,
     MailModule,
     LeadsModule,
   ],

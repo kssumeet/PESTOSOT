@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { Logo } from "./logo";
 import { Button } from "@/components/ui/button";
 import { useLeadModal } from "@/components/lead/lead-modal";
+import { useCustomerAuth } from "@/components/account/customer-auth";
 
 const NAV = [
   { label: "Services", href: "/services", mega: "services" as const },
@@ -25,6 +26,7 @@ const megaPopular = SERVICES.filter((s) => s.popular).slice(0, 6);
 
 export function Navbar() {
   const { open } = useLeadModal();
+  const { customer, status } = useCustomerAuth();
   const [scrolled, setScrolled] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [mega, setMega] = React.useState<"services" | "industries" | null>(null);
@@ -78,12 +80,24 @@ export function Navbar() {
               <Phone className="size-4 text-primary-600" />
               {CONTACT.phone}
             </a>
-            <Link
-              href="/admin/login"
-              className="hidden items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium text-ink-700 transition-colors hover:bg-ink-100 hover:text-navy-900 lg:inline-flex"
-            >
-              <LogIn className="size-4" /> Login
-            </Link>
+            {status === "authed" && customer ? (
+              <Link
+                href="/account"
+                className="hidden items-center gap-2 rounded-full px-2.5 py-1.5 text-sm font-medium text-navy-900 transition-colors hover:bg-ink-100 lg:inline-flex"
+              >
+                <span className="grid size-7 place-items-center rounded-full bg-gradient-to-br from-primary-400 to-primary-700 text-xs font-bold text-white">
+                  {customer.name.charAt(0)}
+                </span>
+                My account
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className="hidden items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium text-ink-700 transition-colors hover:bg-ink-100 hover:text-navy-900 lg:inline-flex"
+              >
+                <LogIn className="size-4" /> Log in
+              </Link>
+            )}
             <Button size="md" className="hidden sm:inline-flex" onClick={() => open()}>
               Book Inspection
             </Button>
@@ -236,13 +250,33 @@ export function Navbar() {
                 >
                   <Phone className="size-4 text-primary-600" /> {CONTACT.phone}
                 </a>
-                <Link
-                  href="/admin/login"
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center justify-center gap-2 py-1 text-sm font-medium text-ink-500 hover:text-navy-900"
-                >
-                  <LogIn className="size-4" /> Staff login
-                </Link>
+                {status === "authed" && customer ? (
+                  <Link
+                    href="/account"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center justify-center gap-2 rounded-full border border-ink-200 py-3 font-semibold text-navy-900"
+                  >
+                    <LogIn className="size-4 text-primary-600" /> My account
+                  </Link>
+                ) : (
+                  <div className="flex items-center justify-center gap-2 text-sm">
+                    <Link
+                      href="/login"
+                      onClick={() => setMobileOpen(false)}
+                      className="font-medium text-navy-900 hover:text-primary-700"
+                    >
+                      Log in
+                    </Link>
+                    <span className="text-ink-300">·</span>
+                    <Link
+                      href="/signup"
+                      onClick={() => setMobileOpen(false)}
+                      className="font-medium text-navy-900 hover:text-primary-700"
+                    >
+                      Sign up
+                    </Link>
+                  </div>
+                )}
               </div>
             </motion.div>
           </motion.div>

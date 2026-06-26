@@ -84,11 +84,12 @@ export function Footer() {
               </a>
             ))}
           </div>
-          <div className="flex gap-5 text-xs text-navy-400">
+          <div className="flex flex-wrap gap-5 text-xs text-navy-400">
+            <Link href="/account" className="hover:text-white">My account</Link>
             <Link href="/contact" className="hover:text-white">Contact</Link>
             <Link href="#" className="hover:text-white">Privacy</Link>
             <Link href="#" className="hover:text-white">Terms</Link>
-            <Link href="/admin/login" className="hover:text-white">Login</Link>
+            <Link href="/admin/login" className="hover:text-white">Staff login</Link>
           </div>
         </div>
       </div>

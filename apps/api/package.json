@@ -4,7 +4,7 @@
   "private": true,
   "description": "PESTOSOT API - premium pest-control / deep-cleaning lead-gen platform",
   "scripts": {
-    "start:dev": "nest start --watch",
+    "start:dev": "nest start --watch --path tsconfig.build.json",
     "start": "node dist/main.js",
     "build": "nest build",
     "typecheck": "tsc --noEmit",
@@ -27,6 +27,7 @@
     "bcryptjs": "^2.4.3",
     "class-validator": "^0.14.1",
     "class-transformer": "^0.5.1",
+    "express": "^4.21.2",
     "helmet": "^8.0.0",
     "nodemailer": "^6.9.16",
     "reflect-metadata": "^0.2.2",
