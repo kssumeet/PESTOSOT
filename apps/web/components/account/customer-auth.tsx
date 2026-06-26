@@ -4,19 +4,17 @@ import * as React from "react";
 import {
   loginCustomer,
   registerCustomer,
+  logoutCustomer,
   getCustomerMe,
   type Customer,
 } from "@/lib/customer";
 
-const TOKEN_KEY = "pestosot_customer_token";
-
 interface CustomerAuthState {
-  token: string | null;
   customer: Customer | null;
   status: "loading" | "authed" | "guest";
   login: (email: string, password: string) => Promise<void>;
   register: (input: { name: string; email: string; phone: string; password: string }) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const Ctx = React.createContext<CustomerAuthState | null>(null);
@@ -28,60 +26,45 @@ export function useCustomerAuth() {
 }
 
 export function CustomerAuthProvider({ children }: { children: React.ReactNode }) {
-  const [token, setToken] = React.useState<string | null>(null);
   const [customer, setCustomer] = React.useState<Customer | null>(null);
   const [status, setStatus] = React.useState<"loading" | "authed" | "guest">("loading");
 
+  // The session lives in an httpOnly cookie — validate it via /me.
   React.useEffect(() => {
-    const saved = localStorage.getItem(TOKEN_KEY);
-    if (!saved) {
-      setStatus("guest");
-      return;
-    }
-    getCustomerMe(saved)
+    getCustomerMe()
       .then((c) => {
-        setToken(saved);
         setCustomer(c);
         setStatus("authed");
       })
-      .catch(() => {
-        localStorage.removeItem(TOKEN_KEY);
-        setStatus("guest");
-      });
+      .catch(() => setStatus("guest"));
   }, []);
 
-  const apply = React.useCallback((accessToken: string, c: Customer) => {
-    localStorage.setItem(TOKEN_KEY, accessToken);
-    setToken(accessToken);
+  const login = React.useCallback(async (email: string, password: string) => {
+    const { customer: c } = await loginCustomer(email, password);
     setCustomer(c);
     setStatus("authed");
   }, []);
 
-  const login = React.useCallback(
-    async (email: string, password: string) => {
-      const res = await loginCustomer(email, password);
-      apply(res.accessToken, res.customer);
-    },
-    [apply],
-  );
-
   const register = React.useCallback(
     async (input: { name: string; email: string; phone: string; password: string }) => {
-      const res = await registerCustomer(input);
-      apply(res.accessToken, res.customer);
+      const { customer: c } = await registerCustomer(input);
+      setCustomer(c);
+      setStatus("authed");
     },
-    [apply],
+    [],
   );
 
-  const logout = React.useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY);
-    setToken(null);
-    setCustomer(null);
-    setStatus("guest");
+  const logout = React.useCallback(async () => {
+    try {
+      await logoutCustomer();
+    } finally {
+      setCustomer(null);
+      setStatus("guest");
+    }
   }, []);
 
   return (
-    <Ctx.Provider value={{ token, customer, status, login, register, logout }}>
+    <Ctx.Provider value={{ customer, status, login, register, logout }}>
       {children}
     </Ctx.Provider>
   );

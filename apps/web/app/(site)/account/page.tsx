@@ -18,7 +18,7 @@ function fmtDate(iso: string) {
 }
 
 export default function AccountPage() {
-  const { customer, token, status, logout } = useCustomerAuth();
+  const { customer, status, logout } = useCustomerAuth();
   const { open } = useLeadModal();
   const router = useRouter();
   const [bookings, setBookings] = React.useState<Booking[]>([]);
@@ -30,13 +30,13 @@ export default function AccountPage() {
   }, [status, router]);
 
   React.useEffect(() => {
-    if (!token) return;
+    if (status !== "authed") return;
     setLoading(true);
-    getCustomerBookings(token)
+    getCustomerBookings()
       .then(setBookings)
       .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false));
-  }, [token]);
+  }, [status]);
 
   if (status !== "authed" || !customer) {
     return (

@@ -1,4 +1,4 @@
-/** Admin API client — talks to the NestJS backend with a Bearer token. */
+/** Admin API client — authenticates via httpOnly cookie (credentials: include). */
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
@@ -58,16 +58,13 @@ export class AdminApiError extends Error {
   }
 }
 
-async function request<T>(path: string, token: string | null, init?: RequestInit): Promise<T> {
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let res: Response;
   try {
     res = await fetch(`${API_URL}${path}`, {
       ...init,
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        ...init?.headers,
-      },
+      credentials: "include",
+      headers: { "Content-Type": "application/json", ...init?.headers },
     });
   } catch {
     throw new AdminApiError("Cannot reach the API. Is the backend running on " + API_URL + "?", 0);
@@ -86,18 +83,21 @@ async function request<T>(path: string, token: string | null, init?: RequestInit
 }
 
 export function adminLogin(email: string, password: string) {
-  return request<{ accessToken: string; user: AdminUser }>("/auth/login", null, {
+  return request<{ user: AdminUser }>("/auth/login", {
     method: "POST",
     body: JSON.stringify({ email, password }),
   });
 }
 
-export function getMe(token: string) {
-  return request<AdminUser>("/auth/me", token);
+export function adminLogout() {
+  return request<{ ok: true }>("/auth/logout", { method: "POST" });
+}
+
+export function getMe() {
+  return request<AdminUser>("/auth/me");
 }
 
 export function getLeads(
-  token: string,
   params: { status?: string; city?: string; page?: number; limit?: number } = {},
 ) {
   const qs = new URLSearchParams();
@@ -105,11 +105,11 @@ export function getLeads(
   if (params.city) qs.set("city", params.city);
   qs.set("page", String(params.page ?? 1));
   qs.set("limit", String(params.limit ?? 20));
-  return request<LeadsPage>(`/leads?${qs.toString()}`, token);
+  return request<LeadsPage>(`/leads?${qs.toString()}`);
 }
 
-export function updateLeadStatus(token: string, id: string, status: LeadStatus) {
-  return request<Lead>(`/leads/${id}`, token, {
+export function updateLeadStatus(id: string, status: LeadStatus) {
+  return request<Lead>(`/leads/${id}`, {
     method: "PATCH",
     body: JSON.stringify({ status }),
   });

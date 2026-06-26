@@ -1,4 +1,4 @@
-/** Customer portal API client — talks to the NestJS customer endpoints. */
+/** Customer portal API client — authenticates via httpOnly cookie. */
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
@@ -22,11 +22,6 @@ export interface Booking {
   createdAt: string;
 }
 
-export interface CustomerAuthResult {
-  accessToken: string;
-  customer: Customer;
-}
-
 export class CustomerApiError extends Error {
   constructor(
     message: string,
@@ -37,16 +32,13 @@ export class CustomerApiError extends Error {
   }
 }
 
-async function request<T>(path: string, token: string | null, init?: RequestInit): Promise<T> {
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let res: Response;
   try {
     res = await fetch(`${API_URL}${path}`, {
       ...init,
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        ...init?.headers,
-      },
+      credentials: "include",
+      headers: { "Content-Type": "application/json", ...init?.headers },
     });
   } catch {
     throw new CustomerApiError("Can't reach our servers. Please try again shortly.", 0);
@@ -70,23 +62,27 @@ export function registerCustomer(input: {
   phone: string;
   password: string;
 }) {
-  return request<CustomerAuthResult>("/customer/register", null, {
+  return request<{ customer: Customer }>("/customer/register", {
     method: "POST",
     body: JSON.stringify(input),
   });
 }
 
 export function loginCustomer(email: string, password: string) {
-  return request<CustomerAuthResult>("/customer/login", null, {
+  return request<{ customer: Customer }>("/customer/login", {
     method: "POST",
     body: JSON.stringify({ email, password }),
   });
 }
 
-export function getCustomerMe(token: string) {
-  return request<Customer>("/customer/me", token);
+export function logoutCustomer() {
+  return request<{ ok: true }>("/customer/logout", { method: "POST" });
 }
 
-export function getCustomerBookings(token: string) {
-  return request<Booking[]>("/customer/leads", token);
+export function getCustomerMe() {
+  return request<Customer>("/customer/me");
+}
+
+export function getCustomerBookings() {
+  return request<Booking[]>("/customer/leads");
 }

@@ -29,7 +29,7 @@ function fmtDate(iso: string) {
 }
 
 export default function AdminLeadsPage() {
-  const { token } = useAdminAuth();
+  const { status: authStatus } = useAdminAuth();
   const [leads, setLeads] = React.useState<Lead[]>([]);
   const [total, setTotal] = React.useState(0);
   const [page, setPage] = React.useState(1);
@@ -41,29 +41,29 @@ export default function AdminLeadsPage() {
   const [updatingId, setUpdatingId] = React.useState<string | null>(null);
 
   const load = React.useCallback(() => {
-    if (!token) return;
+    if (authStatus !== "authed") return;
     setLoading(true);
     setError(null);
-    getLeads(token, { status: status || undefined, city: city || undefined, page, limit: LIMIT })
+    getLeads({ status: status || undefined, city: city || undefined, page, limit: LIMIT })
       .then((res) => {
         setLeads(res.data);
         setTotal(res.total);
       })
       .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false));
-  }, [token, status, city, page]);
+  }, [authStatus, status, city, page]);
 
   React.useEffect(() => {
     load();
   }, [load]);
 
   async function changeStatus(id: string, next: LeadStatus) {
-    if (!token) return;
+    if (authStatus !== "authed") return;
     setUpdatingId(id);
     const prev = leads;
     setLeads((ls) => ls.map((l) => (l.id === id ? { ...l, status: next } : l)));
     try {
-      await updateLeadStatus(token, id, next);
+      await updateLeadStatus(id, next);
     } catch (e) {
       setLeads(prev); // revert on failure
       setError(e instanceof Error ? e.message : "Failed to update status");

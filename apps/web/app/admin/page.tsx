@@ -16,23 +16,23 @@ function fmtDate(iso: string) {
 }
 
 export default function AdminDashboard() {
-  const { token } = useAdminAuth();
+  const { status } = useAdminAuth();
   const [leads, setLeads] = React.useState<Lead[]>([]);
   const [total, setTotal] = React.useState(0);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    if (!token) return;
+    if (status !== "authed") return;
     setLoading(true);
-    getLeads(token, { limit: 200, page: 1 })
+    getLeads({ limit: 200, page: 1 })
       .then((res) => {
         setLeads(res.data);
         setTotal(res.total);
       })
       .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false));
-  }, [token]);
+  }, [status]);
 
   const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const count = (fn: (l: Lead) => boolean) => leads.filter(fn).length;

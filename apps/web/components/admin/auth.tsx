@@ -1,16 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { adminLogin, getMe, type AdminUser } from "@/lib/admin";
-
-const TOKEN_KEY = "pestosot_admin_token";
+import { adminLogin, adminLogout, getMe, type AdminUser } from "@/lib/admin";
 
 interface AuthState {
-  token: string | null;
   user: AdminUser | null;
   status: "loading" | "authed" | "guest";
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = React.createContext<AuthState | null>(null);
@@ -22,46 +19,36 @@ export function useAdminAuth() {
 }
 
 export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
-  const [token, setToken] = React.useState<string | null>(null);
   const [user, setUser] = React.useState<AdminUser | null>(null);
   const [status, setStatus] = React.useState<"loading" | "authed" | "guest">("loading");
 
-  // Restore + validate an existing session on mount.
+  // The session lives in an httpOnly cookie — validate it by calling /me.
   React.useEffect(() => {
-    const saved = localStorage.getItem(TOKEN_KEY);
-    if (!saved) {
-      setStatus("guest");
-      return;
-    }
-    getMe(saved)
+    getMe()
       .then((u) => {
-        setToken(saved);
         setUser(u);
         setStatus("authed");
       })
-      .catch(() => {
-        localStorage.removeItem(TOKEN_KEY);
-        setStatus("guest");
-      });
+      .catch(() => setStatus("guest"));
   }, []);
 
   const login = React.useCallback(async (email: string, password: string) => {
-    const { accessToken, user: u } = await adminLogin(email, password);
-    localStorage.setItem(TOKEN_KEY, accessToken);
-    setToken(accessToken);
+    const { user: u } = await adminLogin(email, password);
     setUser(u);
     setStatus("authed");
   }, []);
 
-  const logout = React.useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY);
-    setToken(null);
-    setUser(null);
-    setStatus("guest");
+  const logout = React.useCallback(async () => {
+    try {
+      await adminLogout();
+    } finally {
+      setUser(null);
+      setStatus("guest");
+    }
   }, []);
 
   return (
-    <AuthContext.Provider value={{ token, user, status, login, logout }}>
+    <AuthContext.Provider value={{ user, status, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
