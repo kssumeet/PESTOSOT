@@ -5,19 +5,19 @@
 
 ---
 
-## Option A — API on Vercel (serverless)
+## Option A — API on Vercel (NestJS preset)
 
-The API ships a serverless entry (`apps/api/api/index.ts`) that boots the Nest app once per warm function and forwards requests to it. `apps/api/vercel.json` wires the build and routes all paths to it.
+Vercel's built-in **NestJS** framework preset wraps `src/main.ts` into a serverless function automatically — no custom adapter needed.
 
 **Important:** serverless functions open a DB connection per cold start, so use a **pooled Postgres** — [Neon](https://neon.tech) (pooled connection string) or [Supabase](https://supabase.com) (port `6543`, pgbouncer). A raw single-connection Postgres will exhaust connections.
 
-1. Create the API project on Vercel: import `kssumeet/PESTOSOT`, **Root Directory = `apps/api`**, **Framework Preset = Other** (the `vercel.json` drives the build).
-2. Provision a **pooled Postgres** (Neon/Supabase). Keep two URLs handy: the **pooled** one (runtime) and the **direct** one (migrations).
-3. **Environment Variables** (Project → Settings → Environment Variables):
+1. Create the API project on Vercel: import `kssumeet/PESTOSOT`, **Root Directory = `apps/api`**, **Framework Preset = NestJS**.
+2. Provision a **pooled Postgres** (Neon/Supabase). Keep both the **pooled** URL (runtime) and the **direct** URL (migrations).
+3. **Environment Variables** (Project → Settings → Environment Variables → all environments):
    | Variable | Value |
    |---|---|
    | `DATABASE_URL` | the **pooled** connection string |
-   | `JWT_SECRET` | 32+ char random (`openssl rand -hex 48`) — **required** |
+   | `JWT_SECRET` | 32+ char random (`openssl rand -hex 48`) — **required, the API refuses to boot without it** |
    | `JWT_EXPIRES_IN` | `7d` |
    | `WEB_ORIGIN` | the frontend URL, e.g. `https://pestosot.vercel.app` |
    | `COOKIE_SAMESITE` | `none` (frontend & API are different `*.vercel.app` sites) |
@@ -29,9 +29,9 @@ The API ships a serverless entry (`apps/api/api/index.ts`) that boots the Nest a
    ```
 5. **Deploy.** Test: `https://<api>.vercel.app/health` → `{"status":"ok"}`.
 
-> Prisma engine: `schema.prisma` already targets `rhel-openssl-3.0.x` (Vercel's runtime). If you ever see an "engine not found" error, your runtime may be older — add `rhel-openssl-1.0.x` to `binaryTargets` and redeploy.
+> Notes: `prisma generate` runs automatically via the `postinstall` hook. `schema.prisma` already targets `rhel-openssl-3.0.x` (Vercel's runtime) — if you see "engine not found", add `rhel-openssl-1.0.x` to `binaryTargets` and redeploy. If the build still says *"No entrypoint found which imports nestjs"*, make sure the Framework Preset is **NestJS** and Root Directory is **apps/api**.
 
-Then deploy the **web** (section 2) and set its `NEXT_PUBLIC_API_URL` to the API's Vercel URL.
+Then deploy the **web** (next section) and set its `NEXT_PUBLIC_API_URL` to the API's Vercel URL.
 
 ---
 
